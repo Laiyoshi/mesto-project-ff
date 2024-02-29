@@ -5,27 +5,37 @@ const cardTemplate = document.querySelector('#card-template').content
 const cardList = document.querySelector('.places__list')
 
 // @todo: Функция создания карточки
-function addTemplate(cardTitle, cardLink) {
+function createCard(item, deleteCard) {
   const cardElement = cardTemplate
     .querySelector('.places__item')
     .cloneNode(true)
-  const cardRemoveBtn = cardElement.querySelector('.card__delete-button')
 
-  cardRemoveBtn.addEventListener('click', (evt) => {
-    const card = cardRemoveBtn.closest('.card')
-    removeTemplate(card)
+  const cardTitle = cardElement.querySelector('.card__title')
+  cardTitle.textContent = item.name
+
+  const cardImage = cardElement.querySelector('.card__image')
+  cardImage.src = item.link
+  cardImage.alt = item.name
+
+  const cardRemoveBtn = cardElement.querySelector('.card__delete-button')
+  cardRemoveBtn.addEventListener('click', () => {
+    deleteCard()
   })
-  cardElement.querySelector('.card__title').textContent = cardTitle
-  cardElement.querySelector('.card__image').src = cardLink
-  cardList.append(cardElement)
+
+  return cardElement
 }
 
 // @todo: Функция удаления карточки
-function removeTemplate(element) {
-  element.remove()
+function deleteCard() {
+  const card = cardList.querySelector('.card')
+  card.remove()
 }
 
 // @todo: Вывести карточки на страницу
+function addCard(item) {
+  cardList.append(createCard(item, deleteCard))
+}
+
 initialCards.forEach((item) => {
-  addTemplate(item.name, item.link)
+  addCard(item)
 })
