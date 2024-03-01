@@ -19,16 +19,15 @@ function createCard(item, deleteCard) {
 
   const cardRemoveBtn = cardElement.querySelector('.card__delete-button')
   cardRemoveBtn.addEventListener('click', () => {
-    deleteCard()
+    deleteCard(cardRemoveBtn.closest('.card'))
   })
 
   return cardElement
 }
 
 // @todo: Функция удаления карточки
-function deleteCard() {
-  const card = cardList.querySelector('.card')
-  card.remove()
+function deleteCard(element) {
+  element.remove()
 }
 
 // @todo: Вывести карточки на страницу
@@ -36,6 +35,4 @@ function addCard(item) {
   cardList.append(createCard(item, deleteCard))
 }
 
-initialCards.forEach((item) => {
-  addCard(item)
-})
+initialCards.forEach(addCard)
