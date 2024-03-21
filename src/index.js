@@ -1,89 +1,84 @@
 import './pages/index.css'
 import { initialCards } from './scripts/cards'
 import avatar from './images/avatar.jpg'
+import { createCard, deleteCard, likeCard } from './components/card'
+import { openModal, closeModal } from './components/modal'
 
-// @todo: Темплейт карточки
-const cardTemplate = document.querySelector('#card-template').content
-
-// @todo: DOM узлы
 const cardList = document.querySelector('.places__list')
 
-// @todo: Функция создания карточки
-function createCard(item, deleteCard) {
-  const cardElement = cardTemplate
-    .querySelector('.places__item')
-    .cloneNode(true)
+const profileBtn = document.querySelector('.profile__edit-button')
+const profileAddBtn = document.querySelector('.profile__add-button')
+const profileTitle = document.querySelector('.profile__title')
+const profileDescrip = document.querySelector('.profile__description')
+const profileEdit = document.querySelector('.popup_type_edit')
 
-  const cardTitle = cardElement.querySelector('.card__title')
-  cardTitle.textContent = item.name
+const popupContainer = document.querySelectorAll('.popup')
+const formElement = document.querySelector('.popup__form')
+const newCard = document.querySelector('.popup_type_new-card')
+const nameInput = formElement.querySelector('.popup__input_type_name')
+const jobInput = formElement.querySelector('.popup__input_type_description')
+const formCard = newCard.querySelector('.popup__form')
 
-  const cardImage = cardElement.querySelector('.card__image')
-  cardImage.src = item.link
-  cardImage.alt = item.name
-
-  const cardRemoveBtn = cardElement.querySelector('.card__delete-button')
-  cardRemoveBtn.addEventListener('click', () => {
-    deleteCard(cardRemoveBtn.closest('.card'))
-  })
-
-  return cardElement
-}
-
-// @todo: Функция удаления карточки
-function deleteCard(element) {
-  element.remove()
-}
-
-// @todo: Вывести карточки на страницу
 function addCard(item) {
-  cardList.append(createCard(item, deleteCard))
+  cardList.append(createCard(item, deleteCard, likeCard, handleImageClick))
 }
 
-initialCards.forEach(addCard)
+function handleImageClick(evt) {
+  const popupTypeImage = document.querySelector('.popup_type_image')
+  const popupImage = popupTypeImage.querySelector('.popup__image')
+  const popupCaption = popupTypeImage.querySelector('.popup__caption')
 
-// Загрузка аватарки
+  popupImage.src = evt.target.src
+  popupCaption.textContent = evt.target.alt
+  openModal(popupTypeImage)
+}
+
 function loadImage() {
   const profileImage = document.querySelector('.profile__image')
   profileImage.style.backgroundImage = `url(${avatar})`
 }
-
 loadImage()
 
-// Модальные окна
-function openModal(modal) {
-  const modalWindow = document.querySelector(`.${modal}`)
-  modalWindow.classList.remove('popup_is-animated')
-  modalWindow.classList.add('popup_is-opened')
-  const closeBtn = modalWindow.querySelector('.popup__close')
-  closeBtn.addEventListener('click', () => {
-    closeModal(modalWindow)
-  })
+function handleFormSubmit(evt) {
+  evt.preventDefault()
+  profileTitle.textContent = nameInput.value
+  profileDescrip.textContent = jobInput.value
+  closeModal(formElement.closest('.popup'))
+  formElement.removeEventListener('click', handleFormSubmit)
 }
 
-function closeModal(modal) {
-  modal.classList.remove('popup_is-opened')
-  modal.classList.add('popup_is-animated')
+function handleCardSubmit(evt) {
+  evt.preventDefault()
+  const nameImage = formCard.querySelector('.popup__input_type_card-name')
+  const urlInput = formCard.querySelector('.popup__input_type_url')
+  const card = {
+    name: nameImage.value,
+    link: urlInput.value
+  }
+  closeModal(formCard.closest('.popup'))
+
+  cardList.prepend(createCard(card, deleteCard, likeCard, handleImageClick))
+  nameImage.value = ''
+  urlInput.value = ''
+  formCard.removeEventListener('click', handleFormSubmit)
 }
 
-const profileBtn = document.querySelector('.profile__edit-button')
-const profileAddBtn = document.querySelector('.profile__add-button')
-const cardImage = document.querySelectorAll('.places__item')
+initialCards.forEach(addCard)
+
+popupContainer.forEach((item) => {
+  item.classList.add('popup_is-animated')
+})
 
 profileBtn.addEventListener('click', () => {
-  openModal('popup_type_edit')
+  nameInput.value = profileTitle.textContent
+  jobInput.value = profileDescrip.textContent
+  openModal(profileEdit)
 })
 
 profileAddBtn.addEventListener('click', () => {
-  openModal('popup_type_new-card')
+  openModal(newCard)
 })
 
-cardImage.forEach((item) => {
-  item.addEventListener('click', (evt) => {
-    const popupImage = document.querySelector('.popup__image')
-    const captionImage = document.querySelector('.popup__caption')
-    console.log(popupImage, evt.target.src)
-    popupImage.src = evt.target.src
-    captionImage.textContent = evt.target.alt
-    openModal('popup_type_image')
-  })
-})
+formElement.addEventListener('submit', handleFormSubmit)
+
+formCard.addEventListener('submit', handleCardSubmit)
