@@ -12,12 +12,12 @@ const profileTitle = document.querySelector('.profile__title')
 const profileDescrip = document.querySelector('.profile__description')
 const profileEdit = document.querySelector('.popup_type_edit')
 
-const popupContainer = document.querySelectorAll('.popup')
-const formElement = document.querySelector('.popup__form')
-const newCard = document.querySelector('.popup_type_new-card')
-const nameInput = formElement.querySelector('.popup__input_type_name')
-const jobInput = formElement.querySelector('.popup__input_type_description')
-const formCard = newCard.querySelector('.popup__form')
+const popupList = document.querySelectorAll('.popup')
+const formProfile = document.querySelector('.popup__form')
+const popupNewCard = document.querySelector('.popup_type_new-card')
+const nameInput = formProfile.querySelector('.popup__input_type_name')
+const jobInput = formProfile.querySelector('.popup__input_type_description')
+const formCard = popupNewCard.querySelector('.popup__form')
 
 function addCard(item) {
   cardList.append(createCard(item, deleteCard, likeCard, handleImageClick))
@@ -29,6 +29,7 @@ function handleImageClick(evt) {
   const popupCaption = popupTypeImage.querySelector('.popup__caption')
 
   popupImage.src = evt.target.src
+  popupImage.alt = evt.target.alt
   popupCaption.textContent = evt.target.alt
   openModal(popupTypeImage)
 }
@@ -39,12 +40,11 @@ function loadImage() {
 }
 loadImage()
 
-function handleFormSubmit(evt) {
+function handleFormProfileSubmit(evt) {
   evt.preventDefault()
   profileTitle.textContent = nameInput.value
   profileDescrip.textContent = jobInput.value
-  closeModal(formElement.closest('.popup'))
-  formElement.removeEventListener('click', handleFormSubmit)
+  closeModal(profileEdit)
 }
 
 function handleCardSubmit(evt) {
@@ -55,18 +55,19 @@ function handleCardSubmit(evt) {
     name: nameImage.value,
     link: urlInput.value
   }
-  closeModal(formCard.closest('.popup'))
+  closeModal(popupNewCard)
 
   cardList.prepend(createCard(card, deleteCard, likeCard, handleImageClick))
-  nameImage.value = ''
-  urlInput.value = ''
-  formCard.removeEventListener('click', handleFormSubmit)
+  formCard.reset()
 }
 
 initialCards.forEach(addCard)
 
-popupContainer.forEach((item) => {
+popupList.forEach((item) => {
   item.classList.add('popup_is-animated')
+  item.querySelector('.popup__close').addEventListener('click', () => {
+    closeModal(item)
+  })
 })
 
 profileBtn.addEventListener('click', () => {
@@ -76,9 +77,9 @@ profileBtn.addEventListener('click', () => {
 })
 
 profileAddBtn.addEventListener('click', () => {
-  openModal(newCard)
+  openModal(popupNewCard)
 })
 
-formElement.addEventListener('submit', handleFormSubmit)
+formProfile.addEventListener('submit', handleFormProfileSubmit)
 
 formCard.addEventListener('submit', handleCardSubmit)

@@ -19,9 +19,7 @@ export function createCard(item, deleteCard, likeCard, handleImageClick) {
   cardImage.addEventListener('click', handleImageClick)
 
   const likeBtn = cardElement.querySelector('.card__like-button')
-  likeBtn.addEventListener('click', (evt) => {
-    likeCard(evt)
-  })
+  likeBtn.addEventListener('click', likeCard)
 
   return cardElement
 }
