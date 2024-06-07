@@ -3,6 +3,8 @@ import { initialCards } from './scripts/cards'
 import avatar from './images/avatar.jpg'
 import { createCard, deleteCard, likeCard } from './components/card'
 import { openModal, closeModal } from './components/modal'
+import { enableValidation, clearValidation } from './components/validation'
+import { check } from './components/api'
 
 const cardList = document.querySelector('.places__list')
 
@@ -18,6 +20,15 @@ const popupNewCard = document.querySelector('.popup_type_new-card')
 const nameInput = formProfile.querySelector('.popup__input_type_name')
 const jobInput = formProfile.querySelector('.popup__input_type_description')
 const formCard = popupNewCard.querySelector('.popup__form')
+
+const validationConfig = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
+}
 
 function addCard(item) {
   cardList.append(createCard(item, deleteCard, likeCard, handleImageClick))
@@ -58,6 +69,7 @@ function handleCardSubmit(evt) {
   closeModal(popupNewCard)
 
   cardList.prepend(createCard(card, deleteCard, likeCard, handleImageClick))
+  clearValidation(formCard, validationConfig)
   formCard.reset()
 }
 
@@ -74,12 +86,17 @@ profileBtn.addEventListener('click', () => {
   nameInput.value = profileTitle.textContent
   jobInput.value = profileDescrip.textContent
   openModal(profileEdit)
+  clearValidation(formProfile, validationConfig)
 })
 
 profileAddBtn.addEventListener('click', () => {
+  formCard.reset()
+  clearValidation(formCard, validationConfig)
   openModal(popupNewCard)
 })
 
 formProfile.addEventListener('submit', handleFormProfileSubmit)
 
 formCard.addEventListener('submit', handleCardSubmit)
+
+enableValidation(validationConfig)
