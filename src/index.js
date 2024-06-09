@@ -1,15 +1,23 @@
 import './pages/index.css'
-import { initialCards } from './scripts/cards'
-import avatar from './images/avatar.jpg'
-import { createCard, deleteCard, likeCard } from './components/card'
+import { createCard, removeCard, likeCard } from './components/card'
 import { openModal, closeModal } from './components/modal'
 import { enableValidation, clearValidation } from './components/validation'
-import { check } from './components/api'
+import {
+  getUserInfo,
+  getInitialCards,
+  updateProfile,
+  postCard,
+  deleteCard,
+  putLike,
+  deleteLike,
+  updateAvatar
+} from './components/api'
 
 const cardList = document.querySelector('.places__list')
 
 const profileBtn = document.querySelector('.profile__edit-button')
 const profileAddBtn = document.querySelector('.profile__add-button')
+const profileImage = document.querySelector('.profile__image')
 const profileTitle = document.querySelector('.profile__title')
 const profileDescrip = document.querySelector('.profile__description')
 const profileEdit = document.querySelector('.popup_type_edit')
@@ -20,6 +28,8 @@ const popupNewCard = document.querySelector('.popup_type_new-card')
 const nameInput = formProfile.querySelector('.popup__input_type_name')
 const jobInput = formProfile.querySelector('.popup__input_type_description')
 const formCard = popupNewCard.querySelector('.popup__form')
+const popupAvatar = document.querySelector('.popup_type_avatar')
+const formAvatar = popupAvatar.querySelector('.popup__form')
 
 const validationConfig = {
   formSelector: '.popup__form',
@@ -30,9 +40,7 @@ const validationConfig = {
   errorClass: 'popup__error_visible'
 }
 
-function addCard(item) {
-  cardList.append(createCard(item, deleteCard, likeCard, handleImageClick))
-}
+let profile = ''
 
 function handleImageClick(evt) {
   const popupTypeImage = document.querySelector('.popup_type_image')
@@ -45,41 +53,105 @@ function handleImageClick(evt) {
   openModal(popupTypeImage)
 }
 
-function loadImage() {
-  const profileImage = document.querySelector('.profile__image')
-  profileImage.style.backgroundImage = `url(${avatar})`
-}
-loadImage()
-
 function handleFormProfileSubmit(evt) {
   evt.preventDefault()
+  const profileBtn = formProfile.querySelector('.popup__button')
+  profileBtn.textContent = 'Сохранение...'
   profileTitle.textContent = nameInput.value
   profileDescrip.textContent = jobInput.value
-  closeModal(profileEdit)
+  updateProfile(profileTitle.textContent, profileDescrip.textContent).then(
+    () => {
+      profileBtn.textContent = 'Сохранить'
+      closeModal(profileEdit)
+    }
+  )
 }
 
 function handleCardSubmit(evt) {
   evt.preventDefault()
   const nameImage = formCard.querySelector('.popup__input_type_card-name')
   const urlInput = formCard.querySelector('.popup__input_type_url')
+  const cardBtn = formCard.querySelector('.popup__button')
   const card = {
     name: nameImage.value,
-    link: urlInput.value
+    link: urlInput.value,
+    likes: []
   }
-  closeModal(popupNewCard)
+  cardBtn.textContent = 'Сохранение...'
 
-  cardList.prepend(createCard(card, deleteCard, likeCard, handleImageClick))
-  clearValidation(formCard, validationConfig)
-  formCard.reset()
+  card.owner = { _id: profile._id }
+  postCard(card).then(() => {
+    cardList.prepend(
+      createCard(
+        card,
+        removeCard,
+        likeCard,
+        handleImageClick,
+        deleteCard,
+        profile._id,
+        putLike,
+        deleteLike
+      )
+    )
+    clearValidation(formCard, validationConfig)
+    closeModal(popupNewCard)
+    formCard.reset()
+    cardBtn.textContent = 'Сохранить'
+  })
 }
 
-initialCards.forEach(addCard)
+function handleAvatarSubmit(evt) {
+  evt.preventDefault()
+
+  const avatarUrl = formAvatar.querySelector('.popup__input_type_url')
+  const avatarBtn = formAvatar.querySelector('.popup__button')
+  avatarBtn.textContent = 'Сохранение...'
+  profileImage.style.backgroundImage = `url(${avatarUrl.value})`
+  updateAvatar(avatarUrl.value).then(() => {
+    clearValidation(formAvatar, validationConfig)
+    formAvatar.reset()
+    avatarBtn.textContent = 'Сохранить'
+    closeModal(popupAvatar)
+  })
+}
+
+function loadInitialInfo() {
+  Promise.all([getUserInfo(), getInitialCards()]).then((res) => {
+    profile = res[0]
+    const cards = res[1]
+
+    profileImage.style.backgroundImage = `url(${profile.avatar})`
+    profileTitle.textContent = profile.name
+    profileDescrip.textContent = profile.about
+
+    cards.forEach((item) => {
+      cardList.append(
+        createCard(
+          item,
+          removeCard,
+          likeCard,
+          handleImageClick,
+          deleteCard,
+          profile._id,
+          putLike,
+          deleteLike
+        )
+      )
+    })
+  })
+}
 
 popupList.forEach((item) => {
   item.classList.add('popup_is-animated')
   item.querySelector('.popup__close').addEventListener('click', () => {
     closeModal(item)
   })
+})
+
+profileImage.addEventListener('click', () => {
+  clearValidation(formAvatar, validationConfig)
+  formAvatar.reset()
+  openModal(popupAvatar)
 })
 
 profileBtn.addEventListener('click', () => {
@@ -90,13 +162,15 @@ profileBtn.addEventListener('click', () => {
 })
 
 profileAddBtn.addEventListener('click', () => {
-  formCard.reset()
   clearValidation(formCard, validationConfig)
+  formCard.reset()
   openModal(popupNewCard)
 })
-
 formProfile.addEventListener('submit', handleFormProfileSubmit)
 
 formCard.addEventListener('submit', handleCardSubmit)
 
+formAvatar.addEventListener('submit', handleAvatarSubmit)
+
+loadInitialInfo()
 enableValidation(validationConfig)
