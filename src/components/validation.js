@@ -29,13 +29,25 @@ function toggleButtonState(buttonElement, isValid, validationConfig) {
 }
 
 function setEventsListeners(formElement, validationConfig) {
-  const inputList = Array.from(formElement.querySelectorAll(validationConfig.inputSelector))
-  const buttonElement = formElement.querySelector(validationConfig.submitButtonSelector)
-  toggleButtonState(buttonElement, formElement.checkValidity(), validationConfig)
+  const inputList = Array.from(
+    formElement.querySelectorAll(validationConfig.inputSelector)
+  )
+  const buttonElement = formElement.querySelector(
+    validationConfig.submitButtonSelector
+  )
+  toggleButtonState(
+    buttonElement,
+    formElement.checkValidity(),
+    validationConfig
+  )
   inputList.forEach((inputElement) => {
     inputElement.addEventListener('input', function () {
       isValid(formElement, inputElement, validationConfig)
-      toggleButtonState(buttonElement, formElement.checkValidity(), validationConfig)
+      toggleButtonState(
+        buttonElement,
+        formElement.checkValidity(),
+        validationConfig
+      )
     })
   })
 
@@ -60,7 +72,9 @@ function isValid(formElement, inputElement, validationConfig) {
 }
 
 function enableValidation(validationConfig) {
-  const formList = Array.from(document.querySelectorAll(validationConfig.formSelector))
+  const formList = Array.from(
+    document.querySelectorAll(validationConfig.formSelector)
+  )
   formList.forEach((formElement) => {
     setEventsListeners(formElement, validationConfig)
   })
@@ -68,11 +82,15 @@ function enableValidation(validationConfig) {
 
 function clearValidation(profileForm, validationConfig) {
   const inputList = profileForm.querySelectorAll(validationConfig.inputSelector)
-  const buttonElement = profileForm.querySelector(validationConfig.submitButtonSelector)
+  const buttonElement = profileForm.querySelector(
+    validationConfig.submitButtonSelector
+  )
   inputList.forEach((inputElement) => {
-    const errorElement = profileForm.querySelector(`.${inputElement.name}-error`)
+    const errorElement = profileForm.querySelector(
+      `.${inputElement.name}-error`
+    )
     hideError(inputElement, errorElement, validationConfig)
-    buttonEnable(buttonElement, validationConfig)
+    buttonDisable(buttonElement, validationConfig)
   })
 }
 

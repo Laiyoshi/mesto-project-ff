@@ -24,17 +24,22 @@ export function createCard(
   if (item.owner._id === profileId) {
     cardRemoveBtn.addEventListener('click', () => {
       deleteCard(item)
-      removeCard(cardRemoveBtn.closest('.card'))
+        .then(() => {
+          removeCard(cardRemoveBtn.closest('.card'))
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     })
   } else {
     cardRemoveBtn.remove()
   }
 
   const likeCounter = cardElement.querySelector('.card__like-counter')
-  likeCounter.textContent = item.likes.length
   cardImage.addEventListener('click', handleImageClick)
-
   const likeBtn = cardElement.querySelector('.card__like-button')
+  likeCounter.textContent = item.likes.length
+
   item.likes.forEach((item) => {
     if (item._id === profileId) {
       likeBtn.classList.add('card__like-button_is-active')
@@ -43,13 +48,21 @@ export function createCard(
 
   likeBtn.addEventListener('click', (evt) => {
     if (likeCard(evt)) {
-      putLike(item).then((data) => {
-        likeCounter.textContent = data.likes.length
-      })
+      putLike(item)
+        .then((data) => {
+          likeCounter.textContent = data.likes.length
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     } else {
-      deleteLike(item).then((data) => {
-        likeCounter.textContent = data.likes.length
-      })
+      deleteLike(item)
+        .then((data) => {
+          likeCounter.textContent = data.likes.length
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     }
   })
 
