@@ -85,12 +85,12 @@ function clearValidation(profileForm, validationConfig) {
   const buttonElement = profileForm.querySelector(
     validationConfig.submitButtonSelector
   )
+  buttonDisable(buttonElement, validationConfig)
   inputList.forEach((inputElement) => {
     const errorElement = profileForm.querySelector(
       `.${inputElement.name}-error`
     )
     hideError(inputElement, errorElement, validationConfig)
-    buttonDisable(buttonElement, validationConfig)
   })
 }
 

@@ -33,6 +33,8 @@ const urlInput = formCard.querySelector('.popup__input_type_url')
 const cardBtn = formCard.querySelector('.popup__button')
 const popupAvatar = document.querySelector('.popup_type_avatar')
 const formAvatar = popupAvatar.querySelector('.popup__form')
+const avatarUrl = formAvatar.querySelector('.popup__input_type_url')
+const avatarBtn = formAvatar.querySelector('.popup__button')
 const popupTypeImage = document.querySelector('.popup_type_image')
 const popupImage = popupTypeImage.querySelector('.popup__image')
 const popupCaption = popupTypeImage.querySelector('.popup__caption')
@@ -58,9 +60,9 @@ function handleImageClick(evt) {
 
 function handleFormProfileSubmit(evt) {
   evt.preventDefault()
+  profilePopupBtn.textContent = 'Сохранение...'
   updateProfile(profileTitle.textContent, profileDescrip.textContent)
     .then(() => {
-      profilePopupBtn.textContent = 'Сохранение...'
       profileTitle.textContent = nameInput.value
       profileDescrip.textContent = jobInput.value
       closeModal(profileEdit)
@@ -82,10 +84,9 @@ function handleCardSubmit(evt) {
   }
   card.owner = { _id: profile._id }
 
+  cardBtn.textContent = 'Сохранение...'
   postCard(card)
     .then((res) => {
-      cardBtn.textContent = 'Сохранение...'
-
       cardList.prepend(
         createCard(
           res,
@@ -111,13 +112,10 @@ function handleCardSubmit(evt) {
 
 function handleAvatarSubmit(evt) {
   evt.preventDefault()
-
-  const avatarUrl = formAvatar.querySelector('.popup__input_type_url')
-  const avatarBtn = formAvatar.querySelector('.popup__button')
   profileImage.style.backgroundImage = `url(${avatarUrl.value})`
+  avatarBtn.textContent = 'Сохранение...'
   updateAvatar(avatarUrl.value)
     .then(() => {
-      avatarBtn.textContent = 'Сохранение...'
       formAvatar.reset()
       closeModal(popupAvatar)
     })
@@ -131,9 +129,9 @@ function handleAvatarSubmit(evt) {
 
 function loadInitialInfo() {
   Promise.all([getUserInfo(), getInitialCards()])
-    .then((res) => {
-      profile = res[0]
-      const cards = res[1]
+    .then(([userData, arrCards]) => {
+      profile = userData
+      const cards = arrCards
 
       profileImage.style.backgroundImage = `url(${profile.avatar})`
       profileTitle.textContent = profile.name
