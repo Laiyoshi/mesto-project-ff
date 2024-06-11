@@ -123,7 +123,7 @@ function handleAvatarSubmit(evt) {
       console.log(err)
     })
     .finally(() => {
-      cardBtn.textContent = 'Сохранить'
+      avatarBtn.textContent = 'Сохранить'
     })
 }
 
